@@ -1,10 +1,22 @@
-# Importing packages
+#-----# Importing packages #-----#
+
+# System / setup 
 import argparse
+
+# Data analysis packages
 from pathlib import Path
 import pandas as pd
+from collections import Counter
+from itertools import combinations 
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 import networkx as nx
 
+# NLP packages
+import spacy
+nlp = spacy.load("en_core_web_sm")
+
+#-----# Project desctiption #-----#
 
 # Network analysis using object-oriented framework
 '''
@@ -19,7 +31,7 @@ The script is able to take either a pre-produced edge file or a csv file contain
 for the entities extracted from the text. Which entities to extract using NER can be determined by the user (e.g. LOC, PERSON, ORG)
 '''
 
-# Defining main function 
+#-----# Defining main function #-----#
 def main(args):
 
     # Adding arguments that can be specified in command line
@@ -31,11 +43,13 @@ def main(args):
 
     tag = args.tg
 
+    # Initialising class
     NetworkAnalysis(n_edges=n_edges, tag=tag, text_file=text_file, edge_file=edge_file)  # Calling main class 
 
-# Setting class 'CountFunctions'
+#-----# Defining class #-----#
 class NetworkAnalysis:
 
+    #-----# Defining __init__ method #-----#
     def __init__(self,  n_edges, tag, text_file=None, edge_file=None):
 
         # Setting directory of input data 
@@ -64,8 +78,14 @@ class NetworkAnalysis:
         # If text file is given then generate and edge file 
         if text_file is not None: 
             
-            # Generate edge file 
-            generated_edge_file = self.get_edge_file(text_file=self.text_file, tag=self.tag, out_dir=out_dir)
+            # Generate list of entities extracted from each document in text file
+            entities = self.get_entities(text_file=self.text_file, tag=self.tag)
+
+            # Get list of list all possible edges for each document
+            edgelist = self.get_edges(entities=entities)
+
+            # Generate edge file
+            generated_edge_file = self.get_edge_file(edgelist=edgelist, data_dir=data_dir)
 
             # Creating network graph using pre-defined graphing function
             graph = self.get_network_graph(edgefile=generated_edge_file, n_edges=self.n_edges, out_di =out_dir)
@@ -76,7 +96,7 @@ class NetworkAnalysis:
         # If text file is none, use edge_file passed in command line (or default if none)
         else:
 
-            df = pd.read_csv(data_dir / f'{self.edgefile}')  # Read csv edgefile
+            df = pd.read_csv(data_dir / 'edge_files' / f'{self.edgefile}')  # Read csv edgefile
 
             # Creating network graph using pre-defined graphing function
             graph = self.get_network_graph(edgefile=df, n_edges=self.n_edges, out_dir=out_dir)
@@ -84,6 +104,8 @@ class NetworkAnalysis:
             # Calculating nodes metrics and saving df
             self.get_centrality_df(graph, out_dir=out_dir)
 
+
+    #-----# Defining utility functions used in the __init__ #-----#
 
     # Defining function for setting directory for the raw data
     def setting_data_directory(self):
@@ -103,21 +125,109 @@ class NetworkAnalysis:
         out_dir = root_dir / 'src' / 'output' # Setting output directory
 
         return out_dir
-    
-    # Defining function for generating edge file of all edges between nodes and a weight column
+
+    # Defining function for creating and saving df containing degree, betweenness, and eigenvector centrality scores for all nodes in the network
     '''
-    Generates a network graph from an edge file containing a specified number of edges
+    Generates a list of lists of entities for each row in passed text csv file
     Args:
-        edge_file (pd datatframe): Edge file in a pd data frame format containing the following columns: 'nodeA', 'nodeB', 'weight
-        n_edges (integer): Number of edges to keep 
+        text_file (csv): CSV file containing a column for texts named 'text'
+        tag (str) : Tag for SpaCY NER - determines which entities in the text are analysed, e.g. LOC or PERSON
         out_dir (Posix path) : Path for output
     Returns:
-        graph: Final network graph
-
+        all_entities (list) : List of lists of entities for each document (row) in the 'text' column of the passed text file
     '''
-    def get_edge_file(self, text_file, tag, out_dir):
+    def get_entities(self, text_file, tag):
+                # Create list for all entities for each individual row in df
+        all_entities = []
+
+        # Loop through each row of text column in text file df
+        for text in tqdm(text_file['text']):
+
+            # Create temporary list for each individual row
+            individual_entities = []
+
+            # Create doc object
+            doc = nlp(text)
+
+            # Loop through every named entity
+            for entity in doc.ents:
+
+                # If that entity has the same tag as the given tag argument, then append to list of entities for this row
+                if entity.label_ == str(tag):
+
+                    individual_entities.append(entity.text)
+
+            # Append ents for individual row to a all_entities list
+            all_entities.append(individual_entities)
+        
+        return all_entities
+
+    
+    # Defining function for getting list of unique edges
+    '''
+    Generates a list of all node pairs (edges)
+    Args:
+        entities (list) : List of list of entities for each row in passed text csv file
+    Returns:
+        edgelist (list) : List of all node pairs (edges) created by combining the extracted entities for each document into all possible pairs
+    '''
+    def get_edges(self, entities):
+        
+        # Create list for uniqe edges
+        edgelist = []
+        
+        # Loop through each individual list in the passed list of lists of extracted entities
+        for text in entities:
+
+            # Use itertools.combinations() to create all possible combinations of two nodes
+            edges = list(combinations(text, 2))
+
+        # Loop through unique edges 
+        for edge in edges:
+
+            # Sort node-pairs alphabetticaly (to make sure each pair is only represented once) and append to final edgelist
+            edgelist.append(tuple(sorted(edge)))
+            
+        return edgelist
 
 
+    # Defining function for generating edge file of all edges between nodes and a weight column
+    '''
+    Generates a an edge file with the columns 'nodeA', 'nodeB', 'weight'  from an list of unique edges and a list of all extracted entities each document
+        edgelist (list) : List of all node pairs (edges) created by combining the extracted entities for each document into all possible pairs
+        out_dir (Posix path) : Path for output
+    Returns:
+        edge_file_df (Pandas.DataFrame) : Edge file in a pd data frame format containing the following columns: 'nodeA', 'nodeB', 'weight
+    '''
+    def get_edge_file(self, edgelist, data_dir):
+        
+        # Create list for counts for each edges
+        counted_edges = []
+
+        # Loop through unique edges on edgelist  - use Counter() to bundle and count frequency of each unique edge
+        for key, value in Counter(edgelist).items():
+
+            # Get first entity
+            source = key[0]
+
+            # Get second
+            target = key[1]
+
+            # Get 'weight' score as the value output by Count() function
+            weight = value
+
+            # Append nodes and weight as a list to the empty list
+            counted_edges.append((source, target, weight))
+
+        # Convert to data frame
+        edge_file_df = pd.DataFrame(counted_edges, columns=["nodeA", "nodeB", "weight"])
+
+        # Save edge file to data folder
+        df_path = data_dir / 'edge_files' / f'{str(self.text_file)[:len(self.text_file)-4]}edge_file.csv'
+
+        edge_file_df.to_csv(df_path) 
+
+        return edge_file_df
 
     # Defining function for generating plot of network
     '''
@@ -189,6 +299,7 @@ class NetworkAnalysis:
         df_path = out_dir / "centrality_df.csv"  
 
         centrality_df.to_csv(df_path) # Saving the df as a csv file
+
 
 # Executing main function when script is run as main module (e.g. in command line)
 if __name__ == '__main__':
