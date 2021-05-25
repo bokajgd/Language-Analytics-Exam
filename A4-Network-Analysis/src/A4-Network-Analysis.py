@@ -43,14 +43,16 @@ def main(args):
 
     tag = args.tg
 
+    identifier = args.id
+
     # Initialising class
-    NetworkAnalysis(n_edges=n_edges, tag=tag, text_file=text_file, edge_file=edge_file)  # Calling main class 
+    NetworkAnalysis(n_edges=n_edges, tag=tag, text_file=text_file, edge_file=edge_file, identifier=identifier)  # Calling main class 
 
 #-----# Defining class #-----#
 class NetworkAnalysis:
 
     #-----# Defining __init__ method #-----#
-    def __init__(self,  n_edges, tag, text_file=None, edge_file=None):
+    def __init__(self,  n_edges, tag, text_file=None, edge_file=None, identifier=None):
 
         # Setting directory of input data 
         data_dir = self.setting_data_directory() 
@@ -70,6 +72,9 @@ class NetworkAnalysis:
         # Setting tag of entities to extract
         self.tag = tag
 
+        # Setting identifier for use in naming output files
+        self.identifier = identifier
+
         # If both text_file and edge_file args are none, set edge_file to example file provided in folder
         if text_file is None and edge_file is None:
 
@@ -78,8 +83,17 @@ class NetworkAnalysis:
         # If text file is given then generate and edge file 
         if text_file is not None: 
             
+            # If identifier is not given, set it as the first part if text_file
+            if identifier is None:
+
+                # Remove last 4 characters to remove '.csv'
+                self.identifier = str(self.text_file)[:len(self.text_file)-4]
+
+            # Read csv text file
+            text_csv = pd.read_csv(data_dir / 'text_files' / f'{self.text_file}')
+
             # Generate list of entities extracted from each document in text file
-            entities = self.get_entities(text_file=self.text_file, tag=self.tag)
+            entities = self.get_entities(text_file=text_csv, tag=self.tag)
 
             # Get list of list all possible edges for each document
             edgelist = self.get_edges(entities=entities)
@@ -88,18 +102,25 @@ class NetworkAnalysis:
             generated_edge_file = self.get_edge_file(edgelist=edgelist, data_dir=data_dir)
 
             # Creating network graph using pre-defined graphing function
-            graph = self.get_network_graph(edgefile=generated_edge_file, n_edges=self.n_edges, out_di =out_dir)
+            graph = self.get_network_graph(edge_file=generated_edge_file, n_edges=self.n_edges, loaded=False)
 
             # Calculating nodes metrics and saving df
             self.get_centrality_df(graph, out_dir=out_dir)
 
         # If text file is none, use edge_file passed in command line (or default if none)
         else:
+            
+            # If identifier is not given, set it as the first part if edge_file
+            if identifier is None:
 
-            df = pd.read_csv(data_dir / 'edge_files' / f'{self.edgefile}')  # Read csv edgefile
+                # Remove last 4 characters to remove '.csv'
+                self.identifier = str(self.edge_file)[:len(self.edge_file)-4]
+
+            # Read csv edge file
+            edge_csv = pd.read_csv(data_dir / 'edge_files' / f'{self.edge_file}')
 
             # Creating network graph using pre-defined graphing function
-            graph = self.get_network_graph(edgefile=df, n_edges=self.n_edges, out_dir=out_dir)
+            graph = self.get_network_graph(edge_file=edge_csv, n_edges=self.n_edges, loaded=True)
 
             # Calculating nodes metrics and saving df
             self.get_centrality_df(graph, out_dir=out_dir)
@@ -112,7 +133,7 @@ class NetworkAnalysis:
 
         root_dir = Path.cwd()  # Setting root directory
 
-        data_dir = root_dir / 'src' / 'data'   # Setting data directory
+        data_dir = root_dir / 'data'   # Setting data directory
 
         return data_dir
 
@@ -122,7 +143,7 @@ class NetworkAnalysis:
 
         root_dir = Path.cwd()  # Setting root directory
 
-        out_dir = root_dir / 'src' / 'output' # Setting output directory
+        out_dir = root_dir / 'output' # Setting output directory
 
         return out_dir
 
@@ -137,7 +158,11 @@ class NetworkAnalysis:
         all_entities (list) : List of lists of entities for each document (row) in the 'text' column of the passed text file
     '''
     def get_entities(self, text_file, tag):
-                # Create list for all entities for each individual row in df
+        
+        # Print status to command line
+        print(f'\n EXTRACTING ENTITIES WITH TAG: {self.tag} \n')
+
+        # Create list for all entities for each individual row in df
         all_entities = []
 
         # Loop through each row of text column in text file df
@@ -182,11 +207,11 @@ class NetworkAnalysis:
             # Use itertools.combinations() to create all possible combinations of two nodes
             edges = list(combinations(text, 2))
 
-        # Loop through unique edges 
-        for edge in edges:
+            # Loop through unique edges 
+            for edge in edges:
 
-            # Sort node-pairs alphabetticaly (to make sure each pair is only represented once) and append to final edgelist
-            edgelist.append(tuple(sorted(edge)))
+                # Sort node-pairs alphabetticaly (to make sure each pair is only represented once) and append to final edgelist
+                edgelist.append(tuple(sorted(edge)))
             
         return edgelist
 
@@ -223,7 +248,7 @@ class NetworkAnalysis:
         edge_file_df = pd.DataFrame(counted_edges, columns=["nodeA", "nodeB", "weight"])
 
         # Save edge file to data folder
-        df_path = data_dir / 'edge_files' / f'{str(self.text_file)[:len(self.text_file)-4]}edge_file.csv'
+        df_path = data_dir / 'edge_files' / f'{self.identifier}_edge_file.csv'
 
         edge_file_df.to_csv(df_path) 
 
@@ -236,35 +261,68 @@ class NetworkAnalysis:
         edge_file (pd datatframe): Edge file in a pd data frame format containing the following columns: 'nodeA', 'nodeB', 'weight
         n_edges (integer): Number of edges to keep 
         out_dir (Posix path) : Path for output
+        loaded (bool) : Boolean variable to assert whether edge file has been loaded in from folder or generated in the script
     Returns:
         graph: Final network graph
 
     '''
-    def get_network_graph(self, edge_file, n_edges, out_dir):
+    def get_network_graph(self, edge_file, n_edges, loaded):
         
         # Selecting only the desired number of edges with the highest weight scores 
         filtered_df = edge_file.sort_values('weight', ascending = False).head(n_edges) # Contrary to setting a min_edge_weight, this method can be applied to all datasets 
         
-        # Deleting extra column generated by previous line 
-        del filtered_df["Unnamed: 0"]
+        # If edge file has been loaded using pd.read_csv then
+        if loaded is True:
+
+            # Deleting extra column generated by previous line 
+            del filtered_df["Unnamed: 0"]
 
         # Generating network graph
+        plt.figure(figsize=(10,5))
+
+        ax = plt.gca()
+
+        # Setting title of graph
+        if loaded is not True:
+
+            # If edge file is generated via text file input
+            ax.set_title(f'Network Graph for {self.identifier} text data \n Showing top {n_edges} edges with highest weight')
+
+        else:
+
+            # If pre-made edge file is given as script input
+            ax.set_title(f'Network Graph for {self.identifier} \n Showing top {n_edges} edges with highest weight')
+
+        # Creating graph from edgelist
         graph = nx.from_pandas_edgelist(filtered_df, 'nodeA', 'nodeB', ["weight"])        
-    
+
+        # Use draw_shell visualisation
         pos = nx.draw_shell(graph,
                             with_labels = True, 
-                            width = filtered_df['weight']/2500, # Weighting the width of the edges by their weight
+                            # Weighting the width of the edges by their weight (normalised to deal with weight of all sizes)
+                            width = (filtered_df['weight']-min(filtered_df['weight']))/(max(filtered_df['weight'])-min(filtered_df['weight']))*10,
                             font_weight= 'bold', 
-                            edge_cmap = plt.cm.hsv,
-                            edge_color = filtered_df['weight'], # Changing line colour according to weight - unfortunately I couldn't add a colorbar but it still looks kinda cool
+                            edge_cmap = plt.cm.bone,
+                             # Changing line colour according to weight
+                            edge_color = filtered_df['weight'],
                             font_color = "#2A2925", 
                             font_size = 6,
-                            node_color = "#BD7575",
+                            node_color = "#E5C300",
                             node_size = 150)
-                            # Needs title
+        
+        # Add colour bar
+        sm = plt.cm.ScalarMappable(cmap=plt.cm.bone, norm=plt.Normalize(vmin = min(filtered_df['weight']), vmax=max(filtered_df['weight'])))
+        
+        sm._A = []
+    
+        cbar = plt.colorbar(sm, shrink=0.6)
+
+        cbar.set_label('Edge weight', rotation=270, labelpad=15)
+
+        cbar.ax.tick_params(labelsize=6)
 
         # Save graph
-        graph_path = out_dir / "network.png" 
+        graph_path = Path.cwd()  / 'viz' / f"{self.identifier}_network_graph.png" 
 
         plt.savefig(graph_path, dpi=300, bbox_inches="tight")
 
@@ -296,7 +354,7 @@ class NetworkAnalysis:
         })
 
         # Saving dataframe to output folder
-        df_path = out_dir / "centrality_df.csv"  
+        df_path = out_dir / f"{self.identifier}_centrality_df.csv"  
 
         centrality_df.to_csv(df_path) # Saving the df as a csv file
 
@@ -314,7 +372,7 @@ if __name__ == '__main__':
                         help=
                         "[DESCRIPTION] The name of the input text file \n"
                         "[TYPE]        str \n"
-                        "[EXAMPLE]     -fn edges_df.csv",
+                        "[EXAMPLE]     -tf true_news.csv \n",
                         required=False)
 
 
@@ -324,7 +382,16 @@ if __name__ == '__main__':
                         help=
                         "[DESCRIPTION] The name of the input edge_file \n"
                         "[TYPE]        str \n"
-                        "[EXAMPLE]     -fn edges_df.csv",
+                        "[EXAMPLE]     -fn edges_df.csv \n",
+                        required=False)
+
+    parser.add_argument('-id', 
+                        metavar="--identifier",
+                        type=str,
+                        help=
+                        "[DESCRIPTION] Prefix for output files to identify files \n"
+                        "[TYPE]        str \n"
+                        "[EXAMPLE]     -id true_news \n",
                         required=False)
 
     parser.add_argument('-ne',
@@ -334,7 +401,7 @@ if __name__ == '__main__':
                         "[DESCRIPTION] The number of edges to keep in the network. \n"
                         "[TYPE]        int \n"
                         "[DEFAULT]     50 \n"
-                        "[EXAMPLE]     -ne 50",
+                        "[EXAMPLE]     -ne 50 \n",
                         required=False,           
                         default=50)
 
@@ -342,7 +409,7 @@ if __name__ == '__main__':
                         metavar="--tag",
                         type=str,
                         help=
-                        "[DESCRIPTION] The tag which identifies which entities should be extract (e.g. LOC, PERSON, ORG \n"
+                        "[DESCRIPTION] Which entities to extract (LOC, PERSON, ORG) \n"
                         "[TYPE]        str \n"
                         "[DEFAULT]     PERSON \n"
                         "[EXAMPLE]     -tg PERSON",
