@@ -307,7 +307,7 @@ class NetworkAnalysis:
                             edge_color = filtered_df['weight'],
                             font_color = "#2A2925", 
                             font_size = 6,
-                            node_color = "#E5C300",
+                            node_color = "#CFC069",
                             node_size = 150)
         
         # Add colour bar
@@ -322,7 +322,7 @@ class NetworkAnalysis:
         cbar.ax.tick_params(labelsize=6)
 
         # Save graph
-        graph_path = Path.cwd()  / 'viz' / f"{self.identifier}_network_graph.png" 
+        graph_path = Path.cwd()  / 'viz' / f"{self.identifier}_{self.n_edges}_{self.tag.lower()}_network_graph.png" 
 
         plt.savefig(graph_path, dpi=300, bbox_inches="tight")
 
@@ -354,7 +354,7 @@ class NetworkAnalysis:
         })
 
         # Saving dataframe to output folder
-        df_path = out_dir / f"{self.identifier}_centrality_df.csv"  
+        df_path = out_dir / f"{self.identifier}_{self.n_edges}_{self.tag.lower()}_centrality_df.csv"  
 
         centrality_df.to_csv(df_path) # Saving the df as a csv file
 
