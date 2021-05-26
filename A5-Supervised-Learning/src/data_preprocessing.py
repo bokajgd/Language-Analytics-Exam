@@ -16,7 +16,6 @@ nltk.download('punkt')
 # TF-IDF vectoriser
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
 #-----# Project desctiption #-----#
 
 '''
@@ -58,6 +57,7 @@ def main(args):
 #-----# Defining class #-----#
 
 class NotePreprocessing:
+
     def __init__(self, notes_file, admissions_file, max_features, ngram_range):
         
         # Setting directory of input data 
@@ -103,7 +103,7 @@ class NotePreprocessing:
         merged_data = self.merge_dataframes(preprocessed_admissions, discharge_sums)
 
         # Splitting data
-        train_split, valid_split, test_split = self.split_data(merged_data)
+        train_split, valid_split, test_split = self.split_data(merged_data, test_validation_frac=0.2)
 
         # Oversampling positive cases
         train_split_balanced = self.oversample_positive_cases(train_split)
@@ -113,9 +113,7 @@ class NotePreprocessing:
                                                                                                         valid_split, 
                                                                                                         test_split, 
                                                                                                         max_features, 
-                                                                                                        ngram_range)        
-
-        return
+                                                                                                        ngram_range)
 
 
     #-#-# FUNCTION FOR PREPROCESSING ADMISSIONS DATA #-#-#
@@ -217,7 +215,7 @@ class NotePreprocessing:
     #-#-# SPLITTING DATA #-#-#
     '''
     '''
-    def split_data(self, adm_discharge_sums):
+    def split_data(self, adm_discharge_sums, test_validation_frac):
 
         # Shuffling the data randomly
         adm_discharge_sums = adm_discharge_sums.sample(n = len(adm_discharge_sums), random_state = 42) # Setting random state so results can be replicated
@@ -226,7 +224,7 @@ class NotePreprocessing:
         adm_discharge_sums = adm_discharge_sums.reset_index(drop = True)
 
         # Save 20% of the data as validation and test data 
-        valid_test=adm_discharge_sums.sample(frac=0.2,random_state=42)
+        valid_test=adm_discharge_sums.sample(frac=test_validation_frac,random_state=42)
 
         # Use the rest of the data as training data
         train=adm_discharge_sums.drop(valid_test.index)
