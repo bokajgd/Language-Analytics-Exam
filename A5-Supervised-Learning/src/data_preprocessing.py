@@ -320,19 +320,23 @@ class NotePreprocessing:
     # Defining function for setting directory for the raw data
     def setting_data_directory(self):
 
-        root_dir = Path.cwd()  # Setting root directory
+        # Setting root directory
+        root_dir = Path.cwd()  
 
-        data_dir = root_dir / 'data'   # Setting data directory
+        # Setting data directory
+        data_dir = root_dir / 'data'  
 
         return data_dir
 
 
     # Defining function for setting directory for the output
     def setting_output_directory(self):
+        
+        # Setting root directory
+        root_dir = Path.cwd()  
 
-        root_dir = Path.cwd()  # Setting root directory
-
-        out_dir = root_dir / 'output' # Setting output directory
+        # Setting output directory
+        out_dir = root_dir / 'output' 
 
         return out_dir
 
