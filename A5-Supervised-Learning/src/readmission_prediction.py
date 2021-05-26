@@ -51,33 +51,33 @@ class ReadmissionPrediction:
         # Loading training data
         if train_data is None:
 
-            self.train_data = self.load_data(file_name = 'tfidf_train_notes.csv') 
+            self.train_data = self.load_data(file_name='tfidf_train_notes.csv') 
 
         else:
 
-            self.train_data = self.load_data(file_name = train_data) 
+            self.train_data = self.load_data(file_name=train_data) 
 
         # Loading test data 
         if test_data is None:
 
-            self.test_data = self.load_data(file_name = 'tfidf_test_notes.csv')
+            self.test_data = self.load_data(file_name='tfidf_test_notes.csv')
 
         else:
 
-            self.test_data = self.load_data(file_name = test_data) 
+            self.test_data = self.load_data(file_name=test_data) 
 
         # Load training labels
         if train_labels is None:
 
-            self.train_labels = self.load_data(file_name = 'train_labels.csv')
+            self.train_labels = self.load_data(file_name='train_labels.csv')
             
         else:
-            self.train_labels = self.load_data(file_name = train_labels)
+            self.train_labels = self.load_data(file_name=train_labels)
 
         # Load training labels
         if test_labels is None:
 
-            self.test_labels = self.load_data(file_name = 'test_labels.csv')
+            self.test_labels = self.load_data(file_name='test_labels.csv')
 
         else:
 
@@ -115,9 +115,6 @@ class ReadmissionPrediction:
 
         # Evaluating the model
         test_preds = self.lr.predict(self.test_data)
-
-        print(type(test_preds))
-        print(type(self.test_labels))
 
         # Getting metrics 
         cm = metrics.classification_report(self.test_labels, test_preds)
@@ -195,9 +192,9 @@ class ReadmissionPrediction:
         lr_fpr, lr_tpr, _ = metrics.roc_curve(self.test_labels, lr_probs)
         
         # Plot the roc curve for the model
-        plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill')
+        plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill', color='#3D4F82')
 
-        plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic')
+        plt.plot(lr_fpr, lr_tpr, marker='.', label='Logistic', color='#3D4F82')
 
         # Axis labels
         plt.xlabel('False Positive Rate')
@@ -288,7 +285,8 @@ class ReadmissionPrediction:
         
         plt.subplots_adjust(wspace=0.8)
 
-        plt.savefig(Path.cwd() / 'viz' / 'most_important.png', pad_inches=2) 
+        # Save figure
+        plt.savefig(Path.cwd() / 'viz' / 'most_important.png', bbox_inches='tight', pad_inches=2) 
 
 
 # Executing main function when script is run
@@ -305,7 +303,6 @@ if __name__ == '__main__':
                         "[DEFAULT]     tfidf_train_notes.csv \n"
                         "[EXAMPLE]     -tr tfidf_train_notes.csv \n",
                         required=False)
-
 
     parser.add_argument('-te', 
                         metavar="--test_data",
@@ -327,8 +324,6 @@ if __name__ == '__main__':
                         "[EXAMPLE]     -tr train_labels.csv \n",
                         required=False)
 
-
-                        
     parser.add_argument('--tel', 
                         metavar="--test_labels",
                         type=str,

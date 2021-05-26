@@ -1,3 +1,5 @@
+#-----# Importing packages #-----#
+
 # General packages
 import numpy as np
 import pandas as pd 
@@ -11,8 +13,11 @@ import nltk
 from nltk import word_tokenize
 nltk.download('punkt')
 
-# TF-IDF vectorisation
+# TF-IDF vectoriser
 from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+#-----# Project desctiption #-----#
 
 '''
  Preprocessing and preperation of data:
@@ -31,9 +36,11 @@ The purpose of this script is to prepare and preproces the raw textual data and 
 8. Output datasets and labels as CSV-files
 '''
 
+#-----# Defining main function #-----#
+
 # Defining main function
 def main(args):
-
+    
     notes_file = args.nf 
 
     admissions_file = args.af
@@ -48,7 +55,8 @@ def main(args):
                       max_features=max_features,
                       ngram_range=ngram_range)
 
-# Defining class 'NotePreprocessing'
+#-----# Defining class #-----#
+
 class NotePreprocessing:
     def __init__(self, notes_file, admissions_file, max_features, ngram_range):
         
