@@ -17,14 +17,14 @@ See *General Instruction* in the home folder of the repository for instruction o
 If not already open, open a terminal window and redirect to the home folder of the cloned repository (see General Instruction). Remember to activate the virtual environment. Then, jump into the folder called *A4-Network-Analysis* using the following command:
 
 ```bash
-cd A2-Collocation
+cd A4-Network-Analysis.py
 ```
 
 Now, it should be possible to run the following command in to get an understanding of how the script is executed and which arguments should be provided:
 
 ```bash
 # Add -h to view how which arguments should be passed  
-python3 src/A2-Network-Analysis.py -h
+python3 src/A4-Network-Analysis.py -h
 
 usage: A4-Network-Analysis.py [-h] [-tf --text_file] [-ef --edge_file]
                               [-id --identifier] [-ne --n_edges] [-tg --tag]
@@ -54,7 +54,7 @@ optional arguments:
 
 ```
 <br>
-As can be seen from this help guide, the script can take several arguments. If no arguments are specified, the script loads in the example edgelist file, *edges_df.csv, which is located in the *data/edge_files* folder. The number of edges to keep is set to 50 and the script is instructed by default to extract entities with the tag ‘PERSON’. The output identifier label is set as the name of the given edgelist file (in this case *edges_df*).<br>
+As can be seen from this help guide, the script can take several arguments. If no arguments are specified, the script loads in the example edgelist file, *edges_df.csv*, which is located in the *data/edge_files* folder. The number of edges to keep is set to 50 and the script is instructed by default to extract entities with the tag ‘PERSON’. The output identifier label is set as the name of the given edgelist file (in this case *edges_df*).<br>
 <br>
 Baseline execution of the script using the example edgelist file (generated in the notebook from class 6) can be performed using the following command line:
 
