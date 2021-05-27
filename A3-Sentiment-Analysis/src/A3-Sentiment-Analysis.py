@@ -27,27 +27,19 @@ def main(args):
     # Adding argument that can be specified in command line
     filename = args.fn 
 
-    data_dir = args.dd
-
     # Calling main class 
-    SentimentAnalysis(filename=filename, data_dir=data_dir) 
+    SentimentAnalysis(filename=filename) 
 
 
 #-----# Defining class #-----#
 
 class SentimentAnalysis:
 
-    def __init__(self, filename, data_dir):
+    def __init__(self, filename):
         
         # Setting directory of input data
-        if data_dir is None:
-
-            self.data_dir = self.setting_data_directory() 
+        self.data_dir = self.setting_data_directory() 
          
-        else:
-
-            self.data_dir = data_dir
-
         # Setting directory of output plots 
         self.out_dir = self.setting_output_directory()
 
@@ -207,7 +199,8 @@ class SentimentAnalysis:
 # Executing main function when script is run
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description = "[INFO] Sentiment Analysis on a Million Headlines",
+                                formatter_class = argparse.RawTextHelpFormatter)
 
     parser.add_argument('-fn', 
                         metavar="--filename",
