@@ -54,6 +54,7 @@ optional arguments:
 
 ```
 <br>
+
 As can be seen from this help guide, the script can take several arguments. If no arguments are specified, the script loads in the example edgelist file, *edges_df.csv*, which is located in the *data/edge_files* folder. The number of edges to keep is set to 50 and the script is instructed by default to extract entities with the tag ‘PERSON’. The output identifier label is set as the name of the given edgelist file (in this case *edges_df*).<br>
 <br>
 Baseline execution of the script using the example edgelist file (generated in the notebook from class 6) can be performed using the following command line:
