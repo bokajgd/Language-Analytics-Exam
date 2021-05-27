@@ -1,103 +1,161 @@
-# A2 - Image Histogram Comparisons
+# A2 – Collocation: Quantifying the Association Between Words 
 
 # Overview 
 
 **Jakob Grøhn Damgaard, May 2021** <br/>
-This folder contains  assigmnent 2 for the course *Visual Analytics*
+This folder contains  assigmnent 2 for the course *Language Analytics*
 
 # Description
-Colours constitute key markers for the visual system when faced with tasks such as object recognition and memory consolidation (Wichmann and Sharpe, 2002). Furthermore, colours can be numerically represented in e.g., a 3D RGB colour space. Thus, by being both relevant neural features and computationally manageable, colours are an obvious feature to focus on when performing a simple analysis on visual data. As an example, image similarity can be analysed by calculating the differences in the colour composition between two different images. To conduct such an analysis, the various colour nuances present in an must be quantified using a 3D colour histogram. Such a histogram represents the distribution of colour present in an image. <br>
+*“You shall know a word by the company it keeps!”* (Firth, 1957). These renowned words (paraphrased) were written over 60 years ago but still form the foundation of the study of distributional semantics and language structure in general. Today, modern state-of-the-art machine learning models still represent the semantics of a word by analysing the context words that surround it (Wolf et al., 2018). A common, and more simple, approach from corpus linguistics for analysing and quantifying inter-word relationships is to look at word collocation. From a statistical point-of-view, two words are referred to as collocates, when they regularly appear closely together (within a designated span of words from each other) to such an extent that their co-occurrence frequency is statistically significant in some way (Baker, 2006). One metric for quantifying collocation association strength is to a calculate a *Mutual Information* score (MI score) (see information in *methods* section). Due to the non-random nature of language, most collocations are viewed as significant, and association measures such as *Mutual Information* are merely used to rank word relationships in magnitude.<br>
 <br>
-For this assignment, we were provided with a data set consisting of images of 17 different common British flowers. The data set contains 80 images for each category.  We were then asked to compare the 3D colour histogram of a self-chosen target image with each of the other images in the corpus one-by-on using chi square distance as a similarity measure. More specifically, the task was to produce a script that, for a given input image, outputs a single .csv file containing a column for the filenames of the compared images and a column with the corresponding distance scores. Lastly, the script should print out the filename of the image found to be most similar to the input target image.
+For this assignment, we were asked to create a script for calculating word collocations for a given keyword to practice our Python string processing skills. More specifically, we were asked to produce a script capable of the following:
 <br>
 <br>
-The data set contains 80 images for each category. Note that due to storage constraint, only 250 images have been uploaded to GitHub. You are free to download the full dataset locally using this link: https://www.robots.ox.ac.uk/~vgg/data/flowers/17/
+•	Take a text corpus, keyword and a window size (number of words) as input parameters<br>
+•	Find out how often each word co-occurs with the given keyword across the corpus and use this to calculate a MI score between the keyword word and all collocates across the corpus<br>
+•	Generate and output a .csv file consisting of three columns: collocate, raw_frequency, MI<br>
+<br>
+For the assignment, I have used a corpus of 100 English novels. This data is already in the folder (see *Usage*) but can also be downloaded from this link:
+https://github.com/computationalstylistics/100_english_novels <br>
+<br>
 
 # Usage
 See *General Instruction* in the home folder of the repository for instruction on how to clone the repo locally.
 <br>
-If not already open, open a terminal window and redirect to the home folder of the cloned repository. Remember to activate the virtual environment. Then, jump into this folder called *A2-Histogram Comparisons* using the following command:
+If not already open, open a terminal window and redirect to the home folder of the cloned repository (see General Instruction). Remember to activate the virtual environment. Then, jump into the folder called *A2-Collocation* using the following command:
 ```bash
-cd A2-Histogram-Comparisons
+cd A2-Collocation
 ```
 
-Now, it should be possible to run the following command in order to get an understanding of how the script is executed and which arguments should be provided:
+Now, it should be possible to run the following command in to get an understanding of how the script is executed and which arguments should be provided:
+
 ```bash
 # Add -h to view how which arguments should be passed  
-python3 src/A2-Histogram-Comparison.py -h
+A2-Collocation % python3 src/A2-Collocation.py -h 
+usage: A2-Collocation.py [-h] [-key --keyword] [-ws --window_size] [-df --data_folder]
 
-usage: A2-Histogram-Comparison.py [-h] [--ti target_image]
-
-[INFO] Image similarity using color histograms
+[INFO] Calculating Word Collocation Mutual Information Scores
 
 optional arguments:
-  -h, --help          show this help message and exit
-  -ti --target_image  [DESCRIPTION] Name of the target image 
-                      [TYPE]        str 
-                      [DEFAULT]     image_0001 
-                      [EXAMPLE]     -ti image_0001
+  -h, --help         show this help message and exit
+  -key --keyword     [DESCRIPTION] The name of the desired keyword
+                     [TYPE]        str 
+                     [DEFAULT]     cat 
+                     [EXAMPLE]     -key cat 
+  -ws --window_size  [DESCRIPTION] How many words the sliding window 
+                                   should extend on both sides of the keyword 
+                     [TYPE]        int 
+                     [DEFAULT]     2 
+                     [EXAMPLE]     -ws 2 
+  -df --data_folder  [DESCRIPTION] Name of folder with desired data (needs to be in data folder) 
+                     [TYPE]        str 
+                     [DEFAULT]     100_enlgish_novels 
+                     [EXAMPLE]     -df 100_enlgish_novels   
+
 ```
 <br>
-From this, it should be clear that the script can be executed using the following command:
+The script can now be executed with the same output using either of the following commands:
+
 ```bash
-python3 src/A2-Histogram-Comparison.py -ti image_0001
+
+# No arguments passed - the script reverts default values
+python3 src/A2-Collocation.py
+
+# With command line arguments given - same as default values
+python3 src/A2-Collocation.py -key cat -ws 2 -df 100_english_novels
+
 ```
-If there is no input to the --ti argument, image_0001.jpg is used as the default target image. Feel free to choose your own target image. As the script is already specialised to this specific assignment and this specific dataset, I’ve simplified the command line argument as much as possible to increase user-friendliness. Therefore, please note that one only has to input the image name of the desired target image and no file path or .jpg suffix is needed.
+
+Note that execution may take a few minutes to complete. <br>
+<br>
+I’ve simplified the command line arguments as much as possible to increase user-friendliness and, thus, no arguments are strictly required for the user to input in order to initiate a test run of the script. The data directory defaults to the directory of the provided corpus of English novels. To run script on a new data corpus, add a folder with the *.txt* files to the data folder and state the name of the folder using the command line argument *-df*. Do also feel free to play around with the script by changing the keyword or window size. The outputted data frames are given a unique named based on these inputs.
+
 
 ## Structure
 The structure of the assignment folder can be viewed using the following command:
+
 ```bash
 tree -L 2
 ```
+
 This should yield the following graph:
+
 ```bash
 .
 ├── README.md
 ├── data
-│   └── jpg
+│   ├── 100_english_novels
+│   └── README.md
 ├── output
-│   └── chi_sqr_comparisons_image_0001.csv
-└── src
-    └── A3-Histogram-Comparison.py
+│   └── cat_collocates_ws_2.csv
+├── src
+│   └── A2-Collocation.py
+└── viz
+    └── collocation_example.png
 ```
+
 The following table explains the directory structure in more detail:
+<br>
+
 | Column | Description|
 |--------|:-----------|
-```data```| A folder containing the data set used for the analysis. In this folder, the subfolder jpg holds 1382 *.jpg* files along with a *.txt* file listing all the filenames.
-```src``` | A folder containing the *.py* script (*A2-Histogram-Comparison.py*) created to solve the assignment.
-```output``` | A folder containing the output produced by the Python script. The script yields a *.csv* file with the file name **chi_sqr_comparisons_<image name>.csv**
+```data```| A folder containing the provided corpus of English novels in a .txt format. The files are in the *100_english_novels* subfolder. The *README.md* file contains a brief description of the dataset. 
+```src``` | A folder containing the source code (*A2-Collocation.py*) created to solve the assignment. 
+```output``` | A folder containing the output produced by the Python script. The script yields a *.csv* file with the file name *<keyword>_collocates_**<window size>_ws.csv*
+```viz``` | A folder containing the *.png* visualisations for the README.md file
 
 # Methods
-As stated, the script is coded using the principles of object-oriented programming. The main class of the script includes an ```__init__``` method which holds the set of statements used for solving the desired tasks. This collection of statements is executed when the class object is created. Furthermore, the class holds a series of utility functions which are called when needed in the ```__init__```.  The class object is created - and thus, the tasks are performed -whenever the main function is executed. This happens every time the module is executed as a command to the Python interpreter.<br>
+As stated in the *Introduction*, the script is coded using the principles of object-oriented programming. The main class of the script includes an **__init__** method which holds the set of statements used for solving the desired tasks. This collection of statements is executed when the class object is created. Furthermore, the class holds a series of functions created for solving the requested tasks which are called when needed in the **__init__**. The class object is created - and thus, the tasks are performed - whenever the main function is executed. This happens every time the module is executed as a command to the Python interpreter.  <br>
 <br>
-The script takes the name of a target image as an input variable, reads in this image, and creates a 3D colour histogram with 8 bins in each dimension. It then obtains the paths for all the image file located in the data folder. Looping through all the images in the list paths one-by-one (and skipping a file if the path is identical to that of the target image), the script proceeds to generate a 3D colour histogram for each respective comparison image before calculating the chi square distance between it and the target image histogram. This value along with the given file name is then appended as a row to a Pandas (McKinney, 2010) data frame, which is exported as *.csv* file to the output folder when the loop has finished. Finally, the script prints the name and chi square value of the image with the highest similarity. Note that to make images directly comparable and to account for outliers, varying light intensity, image sizes etc., the histograms are normalized using min-max normalisation before similarity is calculated.<br>
+![](viz/collocation_example.png)
 <br>
-The main library utilised for this assignment is OpenCV (Bradski, 2000).
+<br>
+Calculating the mutual information between a keyword and a collocate is reliant on several values in the following contingency table (Evert, 2004):
+<br>
+<br>
+![](viz/contingency_table.png)
+<br>
+<br>
+The relevant numbers from table 1 can more simply be explained as representing the following:<br>
+•	O11 = Number of times the specific collocate appears within the given window of a keyword for entire corpus<br>
+•	O21 = Number of times the specific collocate appears outside of the given window across entire corpus<br>
+•	O12 = Number of other words except the specific collocate that appear in a given window near the keyword across a text/corpus<br>
+•	R1 = Total number of all possible collocation pairs with keyword<br>
+•	C1 = Total occurrences of the specific collocate either inside or outside of the context window<br>
+•	N = Total word size of corpus<br>
+<br>
+To calculate the MI, one must calculate the expected collocation frequency, E11: E11 = (R1 * C1)/N
+<br>
+
+Lastly, the formula for MI is given by: MI = log(O11/E11)
+<br>
+The script loads in the *.txt* files one-by-one, tokenizes them and appends them into one large list of tokenized words before calculating the relevant scores for finding an MI score and  a raw collocate frequency. The general script is heavily reliant on the data handling package Pandas (McKinney et al., 2010) and Numpy (Harris et al., 2020) for array and matrix processing.
 
 # Results
-The script runs swiftly and outputs a tidy data frame as expected. When running the script with *image_0001* set as the target image, the most similar image is found to be *image_0597* which has a chi square distance of **1242**.<br> 
-```bash
-python src/A2-Histogram-Comparison.py -ti image_0001
-The most similar image is image_0597.jpg
-This image has a chi square distance of 1242
-```
-
-### Image_0001
-![](data/jpg/image_0001.jpg)
-### Image_0597
-![](data/jpg/image_0597.jpg)
+The script works as intended and matches all the requirements. Table 2 shows an excerpt from the .csv file generated when running the script with its default settings. <br>
+<br>
+![](viz/extract.png)
 <br>
 <br>
-From this example run, it is apparent that the algorithm to a certain degree captures similarity between images; the target image and the image with the lowest chi square value both depict yellow flowers photographed with a mixed green/brown background. However, color histograms only capture the proportion of the number of colours in an image and do not account for the spatial location of the colors. The target image comprises several flowers and the flower visible in image_0597 - though yellow - is clearly not of the same species. Hence, the method will often be insufficient to solve a more complex task like object recognition and serves better when used in combination with other visual analysis approaches.
+In its current form, the script is, however, unable to handle one minor issue. As the individual texts are currently appended into one long list, the window occasionally laps across two different novels, which is obviously not ideal. Additionally, the efficiency of the code could potentially be optimised to minimise run time.
 
 # References
-Bradski, G. (2000). The OpenCV Library. Dr. Dobb’s Journal of Software Tools.
+Baker, P. (2006). Using corpora in discourse analysis. A&C Black.
+<br>
+<br>
+Evert, S. (2010). Computational Approaches to Collocations. www.collocations.de 
+<br>
+<br>
+Firth, J. R. (1957). A synopsis of linguistic theory, 1930-1955. Studies in linguistic analysis.
+<br>
+<br>
+Harris, C. R., Millman, K. J., van der Walt, S. J., Gommers, R., Virtanen, P., Cournapeau, D., ... & Oliphant, T. E. (2020). Array programming with NumPy. Nature, 585(7825), 357-362.
 <br>
 <br>
 McKinney, W., & others. (2010). Data structures for statistical computing in python. In Proceedings of the 9th Python in Science Conference (Vol. 445, pp. 51–56).
 <br>
 <br>
-Wichmann, F. A., Sharpe, L. T., & Gegenfurtner, K. R. (2002). The contributions of color to recognition memory for natural scenes. Journal of Experimental Psychology: Learning, Memory, and Cognition, 28(3), 509.
+Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2019). HuggingFace's Transformers: State-of-the-art natural language processing. arXiv preprint arXiv:1910.03771.
 
 
 # License

@@ -33,17 +33,17 @@ def main(args):
     
     window_size = args.ws
 
-    data_dir = args.dd
+    data_folder = args.df
 
 
-    Collocation(keyword=keyword, window_size=window_size, data_dir=data_dir)
+    Collocation(keyword=keyword, window_size=window_size, data_folder=data_folder)
 
 #-----# Defining class #-----#
 
 # Setting class 'CountFunctions'
 class Collocation:
 
-    def __init__(self, keyword, window_size, data_dir):
+    def __init__(self, keyword, window_size, data_folder):
 
         # Defining keyword as the parsed argument 'keyword' as a self-variable
         self.keyword = keyword 
@@ -51,15 +51,8 @@ class Collocation:
         # Defining keyword as the parsed argument 'window_size' as a self-variable
         self.window_size = window_size 
 
-        # Setting data directory 
-        if data_dir is None:
-
-            # Set default data dir if none is given
-            self.data_dir = self.setting_data_directory() 
-
-        else:
-            
-            self.data_dir = data_dir
+        # Set default data dir if none is given
+        self.data_dir = self.setting_data_directory(data_folder) 
         
         # Setting output directory for the generated csv file
         self.out_dir = self.setting_output_directory() 
@@ -121,16 +114,16 @@ class Collocation:
 
         # Writing csv files
         df.to_csv(write_path) 
-        
+
 
     #-#-# UTILITY FUNCTIONS #-#-#  
 
     # Defining function for setting directory for the raw data
-    def setting_data_directory(self):
+    def setting_data_directory(self, data_folder):
 
         root_dir = Path.cwd()  # Setting root directory
 
-        data_dir = root_dir / 'data' / '100_english_novels'  # Setting data directory
+        data_dir = root_dir / 'data' / data_folder # Setting data directory
 
         return data_dir
 
@@ -354,7 +347,6 @@ if __name__ == '__main__':
                         required=False,
                         default='cat')
 
-
     parser.add_argument('-ws', 
                         metavar="--window_size",
                         type=int,
@@ -366,15 +358,17 @@ if __name__ == '__main__':
                         "[EXAMPLE]     -ws 2 \n",
                         required=False,
                         default=2)
-    
-    parser.add_argument('-dd', 
-                        metavar="--data_directory",
+        
+    parser.add_argument('-df', 
+                        metavar="--data_folder",
                         type=str,
                         help=
-                        "[DESCRIPTION] Path to directory where data is located \n"
+                        "[DESCRIPTION] Name of folder with desired data (needs to be in data folder) \n"
                         "[TYPE]        str \n"
-                        "[DEFAULT]     A2-Collocation/data/100_english_novels \n"
-                        "[EXAMPLE]     -dd A2-Collocation/data/100_english_novels \n",
-                        required=False)
+                        "[DEFAULT]     100_enlgish_novels \n"
+                        "[EXAMPLE]     -df 100_enlgish_novels \n",
+                        required=False,
+                        default='100_enlgish_novels')
         
+
     main(parser.parse_args())
