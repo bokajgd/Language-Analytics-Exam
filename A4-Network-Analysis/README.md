@@ -138,12 +138,12 @@ python3 src/ A4-Network-Analysis.py -tf true_news_example.csv -ne 50 -tg PERSON
 ```
 
 <br>
-![](viz/true_news_example_50_person_network_graph.png)
+![](viz/resize_for_readme/true_news_example_50_person_network_graph.png)
 <br>
 <br>
 The next plot shows the network graph generated when running the script with the following arguments:
 <br>
-![](viz/true_news_example_30_gpe_network_graph.png)
+![](viz/resize_for_readme/true_news_example_30_gpe_network_graph.png)
 <br>
 <br>
 The title of the plot is adjusted according to the input arguments. Due to the possibility of errors and problems when installing and using the *Pygraphviz* package, I purposefully refrained from employing *NetworkX* graph layouts dependent on this package. This limited the number of possible plotting layouts.<br>
