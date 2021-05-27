@@ -18,7 +18,7 @@ To locally download the code, please open a terminal window, redirect the direct
 git clone https://github.com/bokajgd/Language-Analytics-Exam
 ```
 
-Then, proceed to execute the Bash script provided in the repository for initialising a suitable virtual environment: 
+Redirect to the directory to which you cloned the repository and then, proceed to execute the Bash script provided in the repository for initialising a suitable virtual environment: 
 
 ```bash
 ./create_venv.sh
