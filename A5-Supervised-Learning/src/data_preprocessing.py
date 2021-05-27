@@ -83,16 +83,6 @@ class NotePreprocessing:
             
             admissions = pd.read_csv(self.data_dir / admissions_file, engine='python', encoding='utf-8', error_bad_lines=False)
 
-        # Subset data
-        # admissions_subset = admissions.loc[1:1000,]
-
-        # notes_subset = notes.loc[notes['HADM_ID'].isin(admissions_subset['HADM_ID'])]
-
-        # # Save data
-        # admissions_subset.to_csv(self.data_dir / "ADMISSIONS_subset.csv")
-
-        # notes_subset.to_csv(self.data_dir / "NOTES_subset.csv")
-
         # Pre-processing admissions data using preproccessing function
         preprocessed_admissions = self.preprocess_admissions(admissions)
 
@@ -377,11 +367,11 @@ if __name__ == '__main__':
                         "[DESCRIPTION] The path for the file containing clinical notes. \n"
                         "[TYPE]        str \n"
                         "[DEFAULT]     NOTEEVENTS.csv \n"
-                        "[EXAMPLE]     -ne NOTEEVENTS.csv \n",
+                        "[EXAMPLE]     -ne NOTEEVENTS.csv",
                         required=False)
 
     parser.add_argument('-af', 
-                        metavar="--admissions_file",
+                        metavar="--admission_file",
                         type=str,
                         help=
                         "[DESCRIPTION] The path for the file containing general admissions data \n"

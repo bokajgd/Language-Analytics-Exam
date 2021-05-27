@@ -286,13 +286,14 @@ class ReadmissionPrediction:
         plt.subplots_adjust(wspace=0.8)
 
         # Save figure
-        plt.savefig(Path.cwd() / 'viz' / 'most_important.png', bbox_inches='tight', pad_inches=2) 
+        plt.savefig(Path.cwd() / 'viz' / 'most_important.png', bbox_inches='tight', pad_inches=1) 
 
 
 # Executing main function when script is run
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description = "[INFO] Readmission Prediction",
+                                formatter_class = argparse.RawTextHelpFormatter)
 
     parser.add_argument('-tr', 
                         metavar="--train_data",
