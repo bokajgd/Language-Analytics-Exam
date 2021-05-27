@@ -1,103 +1,175 @@
-# A2 - Image Histogram Comparisons
+# Self-Assigned: Latent Feature Extraction Using LDA for Text Classification
 
 # Overview 
 
 **Jakob Grøhn Damgaard, May 2021** <br/>
-This folder contains  assigmnent 2 for the course *Visual Analytics*
+This folder contains the self-assigned assignemnt for the course *Language Analytics*
 
 # Description
-Colours constitute key markers for the visual system when faced with tasks such as object recognition and memory consolidation (Wichmann and Sharpe, 2002). Furthermore, colours can be numerically represented in e.g., a 3D RGB colour space. Thus, by being both relevant neural features and computationally manageable, colours are an obvious feature to focus on when performing a simple analysis on visual data. As an example, image similarity can be analysed by calculating the differences in the colour composition between two different images. To conduct such an analysis, the various colour nuances present in an must be quantified using a 3D colour histogram. Such a histogram represents the distribution of colour present in an image. <br>
+The vast majority of all human-generated data comes in the form of unstructured, free-written text; on the internet pages you visit daily, in the books you read at night or in the documents you process at work. However, when represented using classical Bag-of-Word feature representations, long prosaic texts are high-dimensional and extremely sparse, and this makes it difficult to extract only the important information without being flooded by redundant stuff. Trying to model only meaningful features is denounced feature engineering  
+and if often the key to good models. A common approach revolves around using NLP techniques to reduce sparsity and capture robust, latent representations of the input texts by transforming them into a lower-dimensional vector space.<br>
 <br>
-For this assignment, we were provided with a data set consisting of images of 17 different common British flowers. The data set contains 80 images for each category.  We were then asked to compare the 3D colour histogram of a self-chosen target image with each of the other images in the corpus one-by-on using chi square distance as a similarity measure. More specifically, the task was to produce a script that, for a given input image, outputs a single .csv file containing a column for the filenames of the compared images and a column with the corresponding distance scores. Lastly, the script should print out the filename of the image found to be most similar to the input target image.
+For this self-assignment project, I wish to investigate using Latent Dirichlet Allocation (LDA) as a method for creating dimensionality-reduced latent feature representations that can be used as input to a classification model. LDA is a generative, unsupervised topic modelling algorithm that constructs topics as bundles of words from a corpus and then represents each document as being composed of a distribution of these topics (Blei, 2003). This topic distribution vector can be extracted as a latent semantic representation of the document. I wish to investigate whether they are meaningfully usable as dense input features to a supervised text classification problem. See visual flowchart of how LDA works.
+<br>
+LDA as a means for generating dense input vectors for classification models is a rather unexplored method (Miotto et al., 2016; Phan et al., 2008) but I find it both intuitive and elegant and I believe that it is worth researching. In my opinion, this project neatly combines the principles of unsupervised learning and classical supervised classification that we have learned about during the semester. <br>
+<br>
+![](viz/lda.png)
 <br>
 <br>
-The data set contains 80 images for each category. Note that due to storage constraint, only 250 images have been uploaded to GitHub. You are free to download the full dataset locally using this link: https://www.robots.ox.ac.uk/~vgg/data/flowers/17/
+As a case study, I will employ my proposed method on a data set consisting of +45.000 fake and true news articles (balanced classes). This data was obtained from this link:<br>
+https://www.kaggle.com/clmentbisaillon/fake-and-real-news-dataset <br>
+<br>
+An LDA model generating *n* topics (default 30) will be trained on a training set consisting of BoW vectorised articles in order to reduce all articles in the data set into an *n-dimensional** topic distribution vector. The training vectors will then train a logistic regression classifier aimed at predicting whether the article is fake or real and the performance hereof will be evaluated on an exclusive test set. A classifier trained on classic, sparse BoW feature vectors will also be trained and tested for comparison.
+
 
 # Usage
 See *General Instruction* in the home folder of the repository for instruction on how to clone the repo locally.
 <br>
-If not already open, open a terminal window and redirect to the home folder of the cloned repository. Remember to activate the virtual environment. Then, jump into this folder called *A2-Histogram Comparisons* using the following command:
+If not already open, open a terminal window and redirect to the home folder of the cloned repository (see General Instruction). Remember to activate the virtual environment. Then, jump into the folder called SA-LDA-Feature-Extraction using the following command:
+
 ```bash
-cd A2-Histogram-Comparisons
+cd SA-LDA-Feature-Extraction
 ```
 
-Now, it should be possible to run the following command in order to get an understanding of how the script is executed and which arguments should be provided:
+Now, it should be possible to run the following command in to get an understanding of how the script is executed and which arguments should be provided:
+
 ```bash
 # Add -h to view how which arguments should be passed  
-python3 src/A2-Histogram-Comparison.py -h
+python3 src/lda_features_classification.py -h
+usage: lda_features_classification.py [-h] [-pd --positive_data]
+                                      [-nd --negative_data]
+                                      [-mf --max_features] [-ng --ngram_range]
+                                      [-ch --chunksize] [-pa --passes]
 
-usage: A2-Histogram-Comparison.py [-h] [--ti target_image]
-
-[INFO] Image similarity using color histograms
+[INFO] Pre-processing discharge summaries
 
 optional arguments:
-  -h, --help          show this help message and exit
-  -ti --target_image  [DESCRIPTION] Name of the target image 
-                      [TYPE]        str 
-                      [DEFAULT]     image_0001 
-                      [EXAMPLE]     -ti image_0001
+  -h, --help           show this help message and exit
+  -pd --positive_data  [DESCRIPTION] The path for the file containing data for positive instances (true news stories). 
+                       [TYPE]        str 
+                       [DEFAULT]     True.csv 
+                       [EXAMPLE]     -pd True.csv 
+  -nd --negative_data  [DESCRIPTION] The path for the file containing data for negative instances (false news stories) 
+                       [TYPE]        str 
+                       [DEFAULT]     False.csv 
+                       [EXAMPLE]     -nd FALSE.csv 
+  -mf --max_features   [DESCRIPTION] The number of features to keep in the vectorised notes 
+                       [TYPE]        int 
+                       [DEFAULT]     30000 
+                       [EXAMPLE]     -mf 30000 
+  -ng --ngram_range    [DESCRIPTION] Defines the range of ngrams to include (either 2 or 3) 
+                       [TYPE]        int 
+                       [DEFAULT]     3 
+                       [EXAMPLE]     -ng 3 
+  -ch --chunksize      [DESCRIPTION] The number of documents per chunk when training the LDA model 
+                       [TYPE]        int 
+                       [DEFAULT]     200 
+                       [EXAMPLE]     -ch 200 
+  -pa --passes         [DESCRIPTION] The number of 'itereations' LDA training should run for 
+                       [TYPE]        int 
+                       [DEFAULT]     10 
+                       [EXAMPLE]     -pa 10
+  -nt --num_topic      [DESCRIPTION] The number of topics the LDA model should generate and include in the topic feature vectors 
+                       [TYPE]        int 
+                       [DEFAULT]     30 
+                       [EXAMPLE]     -nt 30
+  -wo --workers        [DESCRIPTION] The number of cores the LDA-MultiCore model should use for training 
+                       [TYPE]        int 
+                       [DEFAULT]     3 
+                       [EXAMPLE]     -wo 3
+
 ```
 <br>
-From this, it should be clear that the script can be executed using the following command:
+This script provides a plethora of options for manually changing both the raw data input and as well adjusting parameters for the feature vectorisation and the LDA model training. Note that the user can adjust how many cores that LDA-MultiCore model should use when training using the -wo argument (default is 3). I recommend adjusting this to the highest number allowed by your machine (-1) to speed up the execution. The most crucial parameter that one can flexibly adjust is the number of topics the LDA model should create (default 30). By letting the script use the default inputs, the script can be executed like this:
+
 ```bash
-python3 src/A2-Histogram-Comparison.py -ti image_0001
+
+# No arguments passed - the script reverts default values
+python3 src/lda_features_classification.py
+
 ```
-If there is no input to the --ti argument, image_0001.jpg is used as the default target image. Feel free to choose your own target image. As the script is already specialised to this specific assignment and this specific dataset, I’ve simplified the command line argument as much as possible to increase user-friendliness. Therefore, please note that one only has to input the image name of the desired target image and no file path or .jpg suffix is needed.
+Running the script prints two classification reports in the terminal and saves two confusion matrixes of the prediction results on the test set into the output folder.
 
 ## Structure
 The structure of the assignment folder can be viewed using the following command:
+
 ```bash
 tree -L 2
 ```
+
 This should yield the following graph:
+
 ```bash
 .
 ├── README.md
 ├── data
-│   └── jpg
+│   ├── Fake.csv
+│   ├── Fake_subset.csv
+│   ├── True.csv
+│   └── True_subset.csv
 ├── output
-│   └── chi_sqr_comparisons_image_0001.csv
-└── src
-    └── A3-Histogram-Comparison.py
+│   ├── BoW-Feature-Vectors_confusion_matrix.png
+│   └── LDA-Topic-Vectors_confusion_matrix.png
+├── src
+│   └── lda_features_classification.py
+└── viz
+    └── lda.png
+
 ```
+
 The following table explains the directory structure in more detail:
+<br>
+
 | Column | Description|
 |--------|:-----------|
-```data```| A folder containing the data set used for the analysis. In this folder, the subfolder jpg holds 1382 *.jpg* files along with a *.txt* file listing all the filenames.
-```src``` | A folder containing the *.py* script (*A2-Histogram-Comparison.py*) created to solve the assignment.
-```output``` | A folder containing the output produced by the Python script. The script yields a *.csv* file with the file name **chi_sqr_comparisons_<image name>.csv**
+```data```| A folder containing the raw data that can be passed as inputs to the Python script:<br> •	*True.csv*: This file contains all true news articles <br> •	*Fake.csv*: This file contains all fake news articles <br> <br> I have furthermore included two subsets of the data containing only 1000 articles each. 
+```src``` | A folder containing the source code (*lda_features_classification.py*) created to solve the assignment. 
+```output``` | An output folder in which the generated confusion matrices are saved: <br> •	*BoW-Feature-Vectors_confusion_matrix.png*: Confusion matrix for logistic regression trained directly on BoW feature vectors <br> •	*LDA-Topic-Vectors_confusion_matrix.png*: Confusion matrix for logistic regression trained on topic vectors generated using LDA
+```viz``` | An output folder for and other visualisations for the README.md file <br> •	*lda.png*: A flowchart of how LDA works
 
 # Methods
-As stated, the script is coded using the principles of object-oriented programming. The main class of the script includes an ```__init__``` method which holds the set of statements used for solving the desired tasks. This collection of statements is executed when the class object is created. Furthermore, the class holds a series of utility functions which are called when needed in the ```__init__```.  The class object is created - and thus, the tasks are performed -whenever the main function is executed. This happens every time the module is executed as a command to the Python interpreter.<br>
-<br>
-The script takes the name of a target image as an input variable, reads in this image, and creates a 3D colour histogram with 8 bins in each dimension. It then obtains the paths for all the image file located in the data folder. Looping through all the images in the list paths one-by-one (and skipping a file if the path is identical to that of the target image), the script proceeds to generate a 3D colour histogram for each respective comparison image before calculating the chi square distance between it and the target image histogram. This value along with the given file name is then appended as a row to a Pandas (McKinney, 2010) data frame, which is exported as *.csv* file to the output folder when the loop has finished. Finally, the script prints the name and chi square value of the image with the highest similarity. Note that to make images directly comparable and to account for outliers, varying light intensity, image sizes etc., the histograms are normalized using min-max normalisation before similarity is calculated.<br>
-<br>
-The main library utilised for this assignment is OpenCV (Bradski, 2000).
+Similarly, to the other in assignments, the main script is coded using the principles of object-oriented programming. See the first paragraph of the A2-Collocation methods section for a quick outline of the general script architecture. <br> <br>
+The main script can be subdivided into three separate steps:<br><br<>
 
-# Results
-The script runs swiftly and outputs a tidy data frame as expected. When running the script with *image_0001* set as the target image, the most similar image is found to be *image_0597* which has a chi square distance of **1242**.<br> 
-```bash
-python src/A2-Histogram-Comparison.py -ti image_0001
-The most similar image is image_0597.jpg
-This image has a chi square distance of 1242
-```
+1.	Firstly, the input data is loaded, preprocessed (merged and split) and count-vectorised (also removing stop-words and punctuation etc.). As I love the simplicity and general structure of the vectorizer functions from sci-kit learn (Pedregosa et al,. 2011), I employ their CountVectoriser() for document vectorization and, subsequently, transform the feature vectors and vocabulary into gensim-manageable formats. 30.000 features are used for vectorization and both bi-grams and tri-grams are included. 20% of the data is reserved for unbiased model evaluation. Class balance for the training set is not strictly enforced but as the there is an equal amount of positive and negative cases in the entire corpus, the classes end up close to even.
+2.	Secondly, an LDA model is trained using gensims (Rehurek & Sojka, 2011) powerful LdaMulticore() function. After training, topic distribution vectors are obtained for both the training articles and the test articles.
+3.	Lastly, two logistic regression classification models are trained and tested using scikit-learn functions. One is trained and tested using the sparse 30k-dimensional BoW vectors, the other using the LDA-generated topic distribution vectors. A confusion matrix showing the performance of each these models is saved to the output folder and a classification report is printed to the terminal.
+<br>
+<br>
+For ideal research practices, it would be sensible to reserve a subset of the data as a validation which can be used for finetuning hyperparameters etc. However, as this is simply a toy case study for exploring the technique, simply evaluating the models once on a test set that it has not previously been exposed to will suffice.
 
-### Image_0001
-![](data/jpg/image_0001.jpg)
-### Image_0597
-![](data/jpg/image_0597.jpg)
+
+# Discussion of Results
+
+### BoW Vectors
+![](output/BoW-Feature-Vectors_confusion_matrix.png)<br>
+
+### Topic Vectors
+![](output/LDA-Topic-Vectors_confusion_matrix.png)<br>
 <br>
+Above is shown the resulting confusion matrices output by the script when using the default parameters settings (30 LDA topics). From immediate glance, it is evident that this is an easy classification task and both models yield close to perfect results. The model trained on sparse BoW vectors slightly outperforms the LDA based features and with such high accuracies the data set may be a poor case study for analyzing the success of the technique.<br>
 <br>
-From this example run, it is apparent that the algorithm to a certain degree captures similarity between images; the target image and the image with the lowest chi square value both depict yellow flowers photographed with a mixed green/brown background. However, color histograms only capture the proportion of the number of colours in an image and do not account for the spatial location of the colors. The target image comprises several flowers and the flower visible in image_0597 - though yellow - is clearly not of the same species. Hence, the method will often be insufficient to solve a more complex task like object recognition and serves better when used in combination with other visual analysis approaches.
+However, I must restate that the original incentive of this project was not purely to attempt to outperform a BoW model. It is expected that a dimensionality reduction with a factor 1000 would lead to a loss in meaningful information when compared to a model that performs with an accuracy of >99% on a simple logistic regression classifier using sparse BoW vectors. The incentive was more accurately, to investigate, how much discriminative power the reduced topic vectors were able to preserve. Therefore, if you change perspective, the results are actually quite remarkable; we have reduced the input variable from 30.000 meaningful features (sparse, of course) into a feature space with only 30 dimensions and still upheld an accuracy of 98%. <br>
+<br>
+One of the key forces of using topic modelling for dimensionality reduction and feature engineering is that it is easy to combine with other feature engineering techniques for other data types. In classification problems, where a number of different data types need to be appended to a single input feature vector, it is convenient to reduce the textual data into a dense and compact representation. A sparse BoW representation of textual data may be powerful in a stand-alone model but could drown other more compact features when combined with more data types. Miotto et al. (2016) utilize this trait in their attempts in their attempt to model future diseases. They compress all clinical notes for a patient into a 300-dimensional aggregated topic distribution vector using LDA. This dense feature vector is then concatenated with other features such as medication dosages and diagnosis codes.
+
+## Critical Evaluation
+Obviously, this one case study on a simple fake news-detection task that yields close to perfect performances is completely insufficient to make any robust inferences about the value of using LDA for generating latent, dense representations as input vectors to classification models. The method should be tested thoroughly across a number of use cases and in scenarios with varying number of outcome classes and different basis for performance outcomes. It would be interesting to test the method on documents of longer length, e.g., novels or law texts or in predication cases where multiple data types can beneficially be concatenated.
 
 # References
-Bradski, G. (2000). The OpenCV Library. Dr. Dobb’s Journal of Software Tools.
+Blei, D. M., Ng, A. Y., & Jordan, M. I. (2003). Latent dirichlet allocation. the Journal of machine Learning research, 3, 993-1022.
 <br>
 <br>
-McKinney, W., & others. (2010). Data structures for statistical computing in python. In Proceedings of the 9th Python in Science Conference (Vol. 445, pp. 51–56).
+Miotto, R., Li, L., Kidd, B. A., & Dudley, J. T. (2016). Deep patient: an unsupervised representation to predict the future of patients from the electronic health records. Scientific reports, 6(1), 1-10.
 <br>
 <br>
-Wichmann, F. A., Sharpe, L. T., & Gegenfurtner, K. R. (2002). The contributions of color to recognition memory for natural scenes. Journal of Experimental Psychology: Learning, Memory, and Cognition, 28(3), 509.
+Pedregosa, F., Varoquaux, Ga"el, Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others. (2011). Scikit-learn: Machine learning in Python. Journal of Machine Learning Research, 12(Oct), 2825–2830.
+<br>
+<br>
+Phan, X. H., Nguyen, L. M., & Horiguchi, S. (2008, April). Learning to classify short and sparse text & web with hidden topics from large-scale data collections. In Proceedings of the 17th international conference on World Wide Web (pp. 91-100).
+<br>
+<br>
+Rehurek, R., & Sojka, P. (2011). Gensim–python framework for vector space modelling. NLP Centre, Faculty of Informatics, Masaryk University, Brno, Czech Republic, 3(2).
 
 
 # License
