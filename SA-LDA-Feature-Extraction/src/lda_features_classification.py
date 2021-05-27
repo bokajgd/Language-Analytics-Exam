@@ -49,19 +49,25 @@ def main(args):
 
     passes = args.pa
 
+    num_topics = args.nt
+
+    workers = args.wo
+
     # Initialising classs
     LDAFeats2Classification(pos_data=pos_data,
                             neg_data=neg_data,
                             max_features=max_features,
                             ngram_range=ngram_range,
                             chunksize=chunksize,
-                            passes=passes)
+                            passes=passes, 
+                            num_topics=num_topics,
+                            workers=workers)
 
 #-----# Defining class #-----#
 
 class LDAFeats2Classification:
 
-    def __init__(self, pos_data, neg_data, max_features, ngram_range, chunksize, passes):
+    def __init__(self, pos_data, neg_data, max_features, ngram_range, chunksize, passes, num_topics, workers):
 
         # Setting directory of input data 
         self.data_dir = self.setting_data_directory() 
@@ -86,7 +92,6 @@ class LDAFeats2Classification:
             neg_data = 'Fake.csv'
 
         fake_news = pd.read_csv(self.data_dir / f'{neg_data}')
-        
 
         # Add labels
         true_news['label'] = int(1)
@@ -130,21 +135,21 @@ class LDAFeats2Classification:
         # Train LDA model
         self.lda_train = gensim.models.ldamulticore.LdaMulticore(
                            corpus=train_corpus,
-                           num_topics=30,
+                           num_topics=num_topics,
                            id2word=id2word,
                            chunksize=chunksize,
-                           workers=3,
+                           workers=workers,
                            passes=passes,
                            eval_every=10,
                            per_word_topics=True)
 
-        # Print words for topics
+        # Print top 5 words for topics top 5 topics
         print(self.lda_train.print_topics(20,num_words=5)[:5])
 
         # Transform 
-        train_topic_vectors = self.get_topic_vectors(train, train_corpus)
+        train_topic_vectors = self.get_topic_vectors(train, train_corpus, num_topics)
 
-        test_topic_vectors = self.get_topic_vectors(test, test_corpus)
+        test_topic_vectors = self.get_topic_vectors(test, test_corpus, num_topics)
 
         #-----# Train and test classifier #-----#
         
@@ -196,7 +201,7 @@ class LDAFeats2Classification:
         
 
     # Defining function for extracting topic vectors for each document in the corpus
-    def get_topic_vectors(self, df, gensim_corpus):
+    def get_topic_vectors(self, df, gensim_corpus, num_topics):
         
         # Empty list 
         train_vecs = []
@@ -208,7 +213,7 @@ class LDAFeats2Classification:
             top_topics = self.lda_train.get_document_topics(gensim_corpus[i], minimum_probability=0.0)
 
             # Collect numbers into list
-            topic_vec = [top_topics[i][1] for i in range(30)]
+            topic_vec = [top_topics[i][1] for i in range(num_topics)]
 
             # Append list to full list
             train_vecs.append(topic_vec)
@@ -372,6 +377,28 @@ if __name__ == '__main__':
                         "[EXAMPLE]     -pa 10 \n",
                         required=False,
                         default=10)
+
+    parser.add_argument('-nt',
+                        metavar="--num_topic",
+                        type=int,
+                        help=
+                        "[DESCRIPTION] The number of topics the LDA model should generate and include in the topic feature vectors \n"
+                        "[TYPE]        int \n"
+                        "[DEFAULT]     30 \n"
+                        "[EXAMPLE]     -nt 30 \n",
+                        required=False,
+                        default=30)
+
+    parser.add_argument('-wo',
+                        metavar="--workers",
+                        type=int,
+                        help=
+                        "[DESCRIPTION] The number of cores the LDA-MultiCore model should use for training \n"
+                        "[TYPE]        int \n"
+                        "[DEFAULT]     3 \n"
+                        "[EXAMPLE]     -wo 3 \n",
+                        required=False,
+                        default=3)
 
 
     main(parser.parse_args())
