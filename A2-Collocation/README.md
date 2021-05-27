@@ -126,7 +126,7 @@ The relevant numbers from table 1 can more simply be explained as representing t
 <br>
 To calculate the MI, one must calculate the expected collocation frequency, E11: E11 = (R1 * C1)/N
 <br>
-
+<br>
 Lastly, the formula for MI is given by: MI = log(O11/E11)
 <br>
 The script loads in the *.txt* files one-by-one, tokenizes them and appends them into one large list of tokenized words before calculating the relevant scores for finding an MI score and  a raw collocate frequency. The general script is heavily reliant on the data handling package Pandas (McKinney et al., 2010) and Numpy (Harris et al., 2020) for array and matrix processing.
