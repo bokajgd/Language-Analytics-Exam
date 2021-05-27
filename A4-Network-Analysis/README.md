@@ -129,27 +129,11 @@ If, instead, a pre-made edgelist file is passed to the script, the previous step
 
 
 # Results
-The script fulfills the task objectives described in the Description and can be flexible used by the user from the command line. Following plot shows the network graph generated when running the script with the following arguments:
-
-```bash
-
-python3 src/ A4-Network-Analysis.py -tf true_news_example.csv -ne 50 -tg PERSON
-
-```
-
+The script fulfills the task objectives described in the Description and can be flexible used by the user from the command line. The plots can be found in the output folder.<br>
 <br>
-![](viz/resize_for_readme/true_news_example_50_person_network_graph.jpeg)
+The title of the plots are adjusted according to the input arguments. Due to the possibility of errors and problems when installing and using the *Pygraphviz* package, I purposefully refrained from employing *NetworkX* graph layouts dependent on this package. This limited the number of possible plotting layouts.<br>
 <br>
-<br>
-The next plot shows the network graph generated when running the script with the following arguments:
-<br>
-![](viz/resize_for_readme/true_news_example_30_gpe_network_graph.jpeg)
-<br>
-<br>
-The title of the plot is adjusted according to the input arguments. Due to the possibility of errors and problems when installing and using the *Pygraphviz* package, I purposefully refrained from employing *NetworkX* graph layouts dependent on this package. This limited the number of possible plotting layouts.<br>
-<br>
-Though the script works as intended, the network visualisation in the first graph reveals a minor problem. The first mention of a person in an article, often includes the full name. However, when this person is referred later in article, it is common practice to only mention the surname. Thus, the script interprets these two names as separate entities and creates two nodes even though they represent the same person (exemplified by strong connection between *Moore* and *Ryan Moore* nodes). Similarly, the final graph shows that many places can referred to using different names, e.g. *the United States* and *U.S.*. The script could, hence, be improved to take account for these node overlaps by using more complex NLP methods to identify and collapse entities that refer to the same concept/object/person.
-
+Though the script works as intended, the network visualisation in the *firstrue_news_example_50_person_network_graph.png* reveals a minor problem. The first mention of a person in an article, often includes the full name. However, when this person is referred later in article, it is common practice to only mention the surname. Thus, the script interprets these two names as separate entities and creates two nodes even though they represent the same person (exemplified by strong connection between *Moore* and *Ryan Moore* nodes). Similarly, the *true_news_example_30_gpe_network_graph.png* graph shows that many places can referred to using different names, e.g. *the United States* and *U.S.*. The script could, hence, be improved to take account for these node overlaps by using more complex NLP methods to identify and collapse entities that refer to the same concept/object/person.
 
 # References
 Aric A. Hagberg, Daniel A. Schult and Pieter J. Swart, “Exploring network structure, dynamics, and function using NetworkX”, in Proceedings of the 7th Python in Science Conference (SciPy2008), Gäel Varoquaux, Travis Vaught, and Jarrod Millman (Eds), (Pasadena, CA USA), pp. 11–15, Aug 2008
