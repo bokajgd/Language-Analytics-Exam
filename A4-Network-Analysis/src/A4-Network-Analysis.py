@@ -386,7 +386,7 @@ if __name__ == '__main__':
                         help=
                         "[DESCRIPTION] The name of the input edge_file \n"
                         "[TYPE]        str \n"
-                        "[EXAMPLE]     -fn edges_df.csv \n",
+                        "[EXAMPLE]     -ef edges_df.csv \n",
                         required=False)
 
     parser.add_argument('-id', 
