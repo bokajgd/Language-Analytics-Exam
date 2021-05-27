@@ -9,7 +9,6 @@ import numpy as np
 
 #-----# Project desctiption #-----#
 
-
 # Basic python scripting using object-oriented coding - word collocation
 '''
 Using the corpus called 100-english-novels, write a Python programme which does the following:
@@ -34,13 +33,17 @@ def main(args):
     
     window_size = args.ws
 
-    Collocation(keyword=keyword, window_size=window_size)
+    data_dir = args.dd
+
+
+    Collocation(keyword=keyword, window_size=window_size, data_dir=data_dir)
+
+#-----# Defining class #-----#
 
 # Setting class 'CountFunctions'
 class Collocation:
 
-
-    def __init__(self, keyword, window_size):
+    def __init__(self, keyword, window_size, data_dir):
 
         # Defining keyword as the parsed argument 'keyword' as a self-variable
         self.keyword = keyword 
@@ -49,7 +52,14 @@ class Collocation:
         self.window_size = window_size 
 
         # Setting data directory 
-        self.data_dir = self.setting_data_directory() 
+        if data_dir is None:
+
+            # Set default data dir if none is given
+            self.data_dir = self.setting_data_directory() 
+
+        else:
+            
+            self.data_dir = data_dir
         
         # Setting output directory for the generated csv file
         self.out_dir = self.setting_output_directory() 
@@ -111,15 +121,16 @@ class Collocation:
 
         # Writing csv files
         df.to_csv(write_path) 
+        
 
-
+    #-#-# UTILITY FUNCTIONS #-#-#  
 
     # Defining function for setting directory for the raw data
     def setting_data_directory(self):
 
         root_dir = Path.cwd()  # Setting root directory
 
-        data_dir = root_dir / 'data' / '100_english_novels' / 'corpus'  # Setting data directory
+        data_dir = root_dir / 'data' / '100_english_novels'  # Setting data directory
 
         return data_dir
 
@@ -349,11 +360,21 @@ if __name__ == '__main__':
                         type=int,
                         help=
                         "[DESCRIPTION] How many words the sliding window \n"
-                        "              should extend on both sides of the keywod \n"
+                        "              should extend on both sides of the keyword \n"
                         "[TYPE]        int \n"
                         "[DEFAULT]     2 \n"
                         "[EXAMPLE]     -ws 2 \n",
                         required=False,
                         default=2)
+    
+    parser.add_argument('-dd', 
+                        metavar="--data_directory",
+                        type=str,
+                        help=
+                        "[DESCRIPTION] Path to directory where data is located \n"
+                        "[TYPE]        str \n"
+                        "[DEFAULT]     A2-Collocation/data/100_english_novels \n"
+                        "[EXAMPLE]     -dd A2-Collocation/data/100_english_novels \n",
+                        required=False)
         
     main(parser.parse_args())
