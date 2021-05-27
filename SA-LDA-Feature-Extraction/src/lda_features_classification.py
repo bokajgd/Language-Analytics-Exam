@@ -86,16 +86,7 @@ class LDAFeats2Classification:
             neg_data = 'Fake.csv'
 
         fake_news = pd.read_csv(self.data_dir / f'{neg_data}')
-
-        # # Subset data
-        # true_news_subset = true_news.loc[1:1000,]
-
-        # fake_news_subset = fake_news.loc[1:1000,]
-
-        # # Save subset
-        # true_news_subset.to_csv(self.data_dir / "True_subset.csv")
-
-        # fake_news_subset.to_csv(self.data_dir / "Fake_subset.csv")
+        
 
         # Add labels
         true_news['label'] = int(1)
@@ -175,8 +166,7 @@ class LDAFeats2Classification:
                                  test_labels,
                                  'BoW-Feature-Vectors')
 
-        # Perhaps visualisations
-        
+        # This also plots and save confusion matrixes
     
     # Defining logistic regression classifier and evaluation
     '''
@@ -278,7 +268,7 @@ class LDAFeats2Classification:
         root_dir = Path.cwd()  
 
         # Setting data directory
-        data_dir = root_dir /'SA-LDA-Feature-Extraction' / 'data' 
+        data_dir = root_dir / 'data' 
 
         return data_dir
 
@@ -290,7 +280,7 @@ class LDAFeats2Classification:
         root_dir = Path.cwd()
 
         # Setting output directory
-        out_dir = root_dir / 'SA-LDA-Feature-Extraction' / 'output' 
+        out_dir = root_dir / 'output' 
 
         return out_dir
     
@@ -316,7 +306,7 @@ class LDAFeats2Classification:
 if __name__ == '__main__':
 
     #Create an argument parser from argparse
-    parser = argparse.ArgumentParser(description = "[INFO] Pre-processing discharge summaries",
+    parser = argparse.ArgumentParser(description = "[INFO] Feature Extraction using LDAs",
                                 formatter_class = argparse.RawTextHelpFormatter)
 
     parser.add_argument('-pd', 
