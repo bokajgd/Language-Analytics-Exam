@@ -3,8 +3,6 @@
 **Jakob Grøhn Damgaard, May 2021** <br/>
 This repository contains the A5 assigmnent for the course *Language Analytics*. I  chose to conduct supervised classification learning
 
-# Predicting Unplanned Readmissions using Clinical Discharge Notes 
-
 ## Overview 
 Digitalisation of health data documentation has caused a drastic increase in the amounts of electronic health records (EHRs) available for quantitative modelling. Combined with modern machine learning techniques, EHRs can be exploited to generate data driven tools for prediction and intervention in clinical health care settings (Jensen et al., 2012; Shickel et al., 2017). However, a majority of the stored data is in the form of unstructured, prosaic clinical notes. Extracting the valuable information embedded in these notes has proved highly challenging due their chaotic and sparse nature (Dubois et al., 2017). <br>
 <br>
