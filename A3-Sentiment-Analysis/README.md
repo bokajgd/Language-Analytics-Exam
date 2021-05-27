@@ -47,7 +47,7 @@ The script can now be executed with the same output using either of the followin
 python3 src/A3-Sentiment-Analysis
 
 # With command line arguments given - same as default values
-python3 src/A3-Sentiment-Analysis -fn abcnews-date-text_subset_subset.csv
+python3 src/A3-Sentiment-Analysis -fn abcnews-date-text_subset.csv
 
 ```
 
@@ -98,12 +98,7 @@ Akin to the script in assignment 2, the script is coded using the principles of 
 The script employs the pipeline component *spaCyTextBlob* from the *spaCy* (Honnibal & Montani, 2017) library built on *TextBlob* (Loria, 2018) for the sentiment analysis. After calculating polarity scores for the individual headlines, polarity is grouped and averaged for every day and every year, respectively. Rolling averages are then calculated over a 7 and a 30 day interval and used for drawing two *Matplotlib* (Hunter, 2007) time series plots. These are, lastly, saved to the output folder. 
 
 # Discussion of Results
-<br>
-<br>
-![](output/Weekly_Rolling_Average_Polarity.png)
-<br>
-<br>
-![](output/Monthly_Rolling_Average_Polarity.png)
+See the resulting graphs in the output folder.
 <br>
 <br>
 It is difficult to draw any major conclusions or inferences, when eyeballing the plots displaying the rolling weekly and monthly averages in headline polarity scores (see figure 2). However, the plots display a slight dip in average scores during the first decaded which is subsequently followed up by a steady increase starting around 2010. It could be speculated that this rise may be a result of a surge in use of social media. The prevalence of these platforms may have pushed news media towards the use of more sensational headlines. It would have been highly interesting to analyse data for the remainder of 2020 to study the potential impacts of the COVID-19 pandemic. On a final note, it is worth mentioning that, with the exception of a few sporadic dips in the weekly rolling average-plot, the mean polarity scores remain positive across the entire period. This is perhaps in contrast to the general view of media always broadcasting bad news.
